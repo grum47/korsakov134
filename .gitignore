@@ -1,4 +1,6 @@
 __pycache__/
 *.ipynb
 *.csv
-credentials_my.json
+*_my.json
+VenvKorsakov134/
+test.*
