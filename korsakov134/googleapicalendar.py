@@ -1,5 +1,5 @@
-import datetime
 import os.path
+from datetime import datetime, timedelta
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -14,7 +14,7 @@ TOKEN = './config/token.json'
 SERVICE_CRED = './config/korsakov134.json'
 
 
-def get_creds():
+def get_creds(scopes, token, service_cred):
   """
   Getting credentials for authorization
   """
@@ -43,7 +43,7 @@ def get_upcoming_event(creds):
   try:
     service = build("calendar", "v3", credentials=creds)
 
-    now = datetime.datetime.utcnow().isoformat() + "Z"
+    now = datetime.utcnow().isoformat() + "Z"
     events_result = (
         service.events()
         .list(
@@ -69,14 +69,20 @@ def get_upcoming_event(creds):
     print(f"An error occurred: {error}")
 
   
-def create_event(creds, summary, start_event_dt, start_event_tm, end_event_dt, end_event_tm, description=None):
+def create_event(creds, summary, start_event_dt, start_event_tm, end_event_dt=None, end_event_tm=None, description=None):
   """
   Adding an event to the calendar
   """
-  service = build("calendar", "v3", credentials=creds)
-  start_event = start_event_dt + 'T' + start_event_tm + ':00'
-  end_event = end_event_dt + 'T' + end_event_tm + ':00'
+  if not end_event_dt:
+    start_event = datetime.strptime(start_event_dt + ' ' + start_event_tm + ':00', '%Y-%m-%d %H:%M:%S')
+    end_event = start_event + timedelta(hours=1)
+    end_event = str(end_event.date()) + 'T' + str(end_event.time())
+    start_event = str(start_event.date()) + 'T' + str(start_event.time())
+  else:
+    start_event = start_event_dt + 'T' + start_event_tm + ':00'
+    end_event = end_event_dt + 'T' + end_event_tm + ':00'
 
+  service = build("calendar", "v3", credentials=creds)
   event = {
     'summary': f'{summary}',
     'location': '',
@@ -105,5 +111,5 @@ def create_event(creds, summary, start_event_dt, start_event_tm, end_event_dt, e
 
 
 if __name__ == "__main__":
-  get_upcoming_event(get_creds())
-  create_event(get_creds(), 'TEST EVENT', '2024-02-07', '09:00', '2024-02-07', '17:00', 'TEST DESCRIPTION')
+  get_upcoming_event(get_creds(SCOPES, TOKEN, SERVICE_CRED))
+  create_event(get_creds(SCOPES, TOKEN, SERVICE_CRED), 'TEST EVENT', '2024-02-10', '09:00', '2024-02-12', '10:00')
