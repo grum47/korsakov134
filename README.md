@@ -1,3 +1,3 @@
-# Korsqkov134
+# Korsakov134
 
 A telegram assistant who fills out the calendar.

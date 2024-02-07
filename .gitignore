@@ -1,6 +1,6 @@
 __pycache__/
 *.ipynb
 *.csv
-config/
+*.json
 VenvKorsakov134/
 test.*
